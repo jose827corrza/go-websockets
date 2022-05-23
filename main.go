@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/jose827corrza/go-websockets/handlers"
+	"github.com/jose827corrza/go-websockets/middlewares"
 	"github.com/jose827corrza/go-websockets/server"
 )
 
@@ -36,5 +37,16 @@ func main() {
 }
 
 func BindRoutes(s server.Server, r *mux.Router) {
+	r.Use(middlewares.CheckAuthMiddleWare(s))
 	r.HandleFunc("/", handlers.HomeHandler(s)).Methods(http.MethodGet)
+	r.HandleFunc("/signup", handlers.SignUpHandler(s)).Methods(http.MethodPost)
+	r.HandleFunc("/login", handlers.LoginHandler(s)).Methods(http.MethodPost)
+	r.HandleFunc("/me", handlers.MeHandler(s)).Methods(http.MethodGet)
+	r.HandleFunc("/post", handlers.InsertNewPost(s)).Methods(http.MethodPost)
+	r.HandleFunc("/post", handlers.ListPostsHandler(s)).Methods(http.MethodGet)
+	r.HandleFunc("/post/{id}", handlers.GetPostById(s)).Methods(http.MethodGet)
+	r.HandleFunc("/post/{id}", handlers.UpdatePostById(s)).Methods(http.MethodPut)
+	r.HandleFunc("/post/{id}", handlers.DeletePostById(s)).Methods(http.MethodDelete)
+	//WEBSOCKET
+	r.HandleFunc("/ws", s.Hub().HandleWebSocket)
 }
