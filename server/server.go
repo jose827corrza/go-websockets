@@ -10,6 +10,7 @@ import (
 	"github.com/jose827corrza/go-websockets/database"
 	"github.com/jose827corrza/go-websockets/repository"
 	"github.com/jose827corrza/go-websockets/websocket"
+	cors "github.com/rs/cors"
 )
 
 type Config struct {
@@ -64,8 +65,10 @@ func (b *Broker) Start(binder func(s Server, r *mux.Router)) {
 	repository.SetRepository(repo)
 	b.router = mux.NewRouter()
 	binder(b, b.router)
+	handler := cors.Default().Handler(b.router) //Importante que este despues de la funcion binder -.-
 	log.Println("Server running on port:", b.Config().Port)
-	if err := http.ListenAndServe(b.Config().Port, b.router); err != nil {
+	if err := http.ListenAndServe(b.Config().Port, handler); err != nil { //El segundo parametro "b.router"
+		//Se cambia por el handler, esto para quitar el error CORS
 		log.Fatal("ListenAndServe:", err)
 	}
 }

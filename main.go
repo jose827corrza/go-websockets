@@ -37,16 +37,18 @@ func main() {
 }
 
 func BindRoutes(s server.Server, r *mux.Router) {
-	r.Use(middlewares.CheckAuthMiddleWare(s))
+	api := r.PathPrefix("/go-api/v1").Subrouter()
+	api.Use(middlewares.CheckAuthMiddleWare(s))
+	//Las que usen "api" van a estar protegidas, de resto. No
 	r.HandleFunc("/", handlers.HomeHandler(s)).Methods(http.MethodGet)
 	r.HandleFunc("/signup", handlers.SignUpHandler(s)).Methods(http.MethodPost)
 	r.HandleFunc("/login", handlers.LoginHandler(s)).Methods(http.MethodPost)
-	r.HandleFunc("/me", handlers.MeHandler(s)).Methods(http.MethodGet)
-	r.HandleFunc("/post", handlers.InsertNewPost(s)).Methods(http.MethodPost)
+	api.HandleFunc("/me", handlers.MeHandler(s)).Methods(http.MethodGet)
+	api.HandleFunc("/post", handlers.InsertNewPost(s)).Methods(http.MethodPost)
 	r.HandleFunc("/post", handlers.ListPostsHandler(s)).Methods(http.MethodGet)
 	r.HandleFunc("/post/{id}", handlers.GetPostById(s)).Methods(http.MethodGet)
-	r.HandleFunc("/post/{id}", handlers.UpdatePostById(s)).Methods(http.MethodPut)
-	r.HandleFunc("/post/{id}", handlers.DeletePostById(s)).Methods(http.MethodDelete)
+	api.HandleFunc("/post/{id}", handlers.UpdatePostById(s)).Methods(http.MethodPut)
+	api.HandleFunc("/post/{id}", handlers.DeletePostById(s)).Methods(http.MethodDelete)
 	//WEBSOCKET
 	r.HandleFunc("/ws", s.Hub().HandleWebSocket)
 }
