@@ -67,7 +67,7 @@ func (b *Broker) Start(binder func(s Server, r *mux.Router)) {
 	binder(b, b.router)
 	handler := cors.Default().Handler(b.router) //Importante que este despues de la funcion binder -.-
 	log.Println("Server running on port:", b.Config().Port)
-	if err := http.ListenAndServe(b.Config().Port, handler); err != nil { //El segundo parametro "b.router"
+	if err := http.ListenAndServe(":"+b.Config().Port, handler); err != nil { //El segundo parametro "b.router"
 		//Se cambia por el handler, esto para quitar el error CORS
 		log.Fatal("ListenAndServe:", err)
 	}
